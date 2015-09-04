@@ -4,22 +4,32 @@ import serial
 # needs to talk to 402 unit, typically slaved over RS422
 
 
-def connect():
+class Gilson402(object):
 
-
-	return status
-
-
+	def __init__(self):
 
 
 
 
 
-def disconnect:
+	def connect(self, port):
+
+		self.ser = serial.Serial(port, baud. bytesize )
+	
+
+		return status
 
 
 
-	return status
+
+
+
+
+	def disconnect:
+
+
+
+		return status
 
 
 
@@ -30,36 +40,36 @@ def disconnect:
 # 402 Mode - Immediate Commands
 ###############################
 
-def reqResponseFormat:
+	def reqResponseFormat:
 
 
-	return format
-
-
-
-def masterReset:
-
-
-	return status
-
-def getGlobalStatus:
-
-
-	return globalStatus
+		return format
 
 
 
-def getSyringeStatus:
+	def masterReset:
 
 
-	return syringeStatus
+		return status
+
+	def getGlobalStatus:
+
+
+		return globalStatus
 
 
 
-def getValveStatus:
+	def getSyringeStatus:
 
 
-	return valveStatus
+		return syringeStatus
+
+
+
+	def getValveStatus:
+
+
+		return valveStatus
 
 
 
@@ -68,98 +78,98 @@ def getValveStatus:
 ##############################
 
 
-def aspirateVolume(syringe, volume):
+	def aspirateVolume(syringe, volume):
 
 
 
-	return status
+		return status
 
 
 
-def startSyringe(syringe):
+	def startSyringe(syringe):
 
 
 
-	return status
+		return status
 
 
 
 
-def dispenseVolume(syringe, volume):
+	def dispenseVolume(syringe, volume):
 
 
 
-	return status
+		return status
 
 
-def setSyringeMotorForce(syringe, amplitude):
+	def setSyringeMotorForce(syringe, amplitude):
 
 
 
 
-	return status:
+		return status:
 
 
 
 
-def haltSyringeMotors(syringe):
+	def haltSyringeMotors(syringe):
 
 
-	return status
+		return status
 
 
 
-def initialiseSyringe(syringe):
+	def initialiseSyringe(syringe):
 
 
 
 
-	return status
+		return status
 
 
 
-def setSyringeSize(syringe, volume):
+	def setSyringeSize(syringe, volume):
 
 
 
 
-	return status
+		return status
 
 
 
-def setSyringeFlow(syringe, volRate):
+	def setSyringeFlow(syringe, volRate):
 
 
 
 
-	return status
+		return status
 
 
 
-def timelyStart(syringe):
+	def timelyStart(syringe):
 
 
 
 
-	return status
+		return status
 
 
 
-def valveConfigOption(valve):
+	def valveConfigOption(valve):
 
 
 
-	return status
+		return status
 
 
 
 
 
-def valveControl(valve, position):
+	def valveControl(valve, position):
 
 
 
-	return status
+		return status
 
 
 
