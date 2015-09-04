@@ -12,22 +12,25 @@ class Gilson402(object):
 
 
 
-	def connect(self, port):
+	def connect(self, port, baud=19200, bytesize=8, timeout=1):
 
-		self.ser = serial.Serial(port, baud. bytesize )
+		self.ser = serial.Serial( port, baud, bytesize, timeout )
 	
 
 		return status
 
 
+	def isConnected(self):
+
+
+		return connected  #bool
 
 
 
 
+	def disconnect(self):
 
-	def disconnect:
-
-
+		self.ser.close()
 
 		return status
 
@@ -40,34 +43,94 @@ class Gilson402(object):
 # 402 Mode - Immediate Commands
 ###############################
 
-	def reqResponseFormat:
+	def reqModuleID(self):
+		#check connected
+		if( ! self.isConnected() ):
+			return 0;
+		#clear read buffer
 
+		#write command
+		self.ser.write('%')
+		#send ack
+		self.ser.write(chr(6))
+
+		#read returned bytes
+
+		#process returned bytes
 
 		return format
 
 
 
-	def masterReset:
+	def masterReset(self):
+		#check connected
+		if( ! self.isConnected() ):
+			return 0;
+		#clear read buffer
 
+		#write command
+		self.ser.write('$')
+		#send ack
+		self.ser.write(chr(6))
+
+		#read returned bytes
+		
+		#process returned bytes
 
 		return status
 
-	def getGlobalStatus:
+	def getGlobalStatus(self):
+		#check connected
+		if( ! self.isConnected() ):
+			return 0;
+		#clear read buffer
 
+		#write command
+		self.ser.write('')
+		#send ack
+		self.ser.write(chr(6))
+
+		#read returned bytes
+		
+		#process returned bytes
 
 		return globalStatus
 
 
 
-	def getSyringeStatus:
+	def getSyringeStatus(self):
+		#check connected
+		if( ! self.isConnected() ):
+			return 0;
+		#clear read buffer
 
+		#write command
+		self.ser.write('M')
+		#send ack
+		self.ser.write(chr(6))
+
+		#read returned bytes
+		
+		#process returned bytes
 
 		return syringeStatus
 
 
 
-	def getValveStatus:
+	def getValveStatus(self):
+		#check connected
+		if( ! self.isConnected() ):
+			return 0;
+		#clear read buffer
 
+		#write command
+		self.ser.write('V')
+		#send ack
+		self.ser.write(chr(6))
+
+		#read returned bytes
+		
+		#process returned bytes
 
 		return valveStatus
 
@@ -78,7 +141,7 @@ class Gilson402(object):
 ##############################
 
 
-	def aspirateVolume(syringe, volume):
+	def aspirateVolume(self, syringe, volume):
 
 
 
@@ -86,7 +149,7 @@ class Gilson402(object):
 
 
 
-	def startSyringe(syringe):
+	def startSyringe(self, syringe):
 
 
 
@@ -95,14 +158,14 @@ class Gilson402(object):
 
 
 
-	def dispenseVolume(syringe, volume):
+	def dispenseVolume(self, syringe, volume):
 
 
 
 		return status
 
 
-	def setSyringeMotorForce(syringe, amplitude):
+	def setSyringeMotorForce(self, syringe, amplitude):
 
 
 
@@ -112,23 +175,14 @@ class Gilson402(object):
 
 
 
-	def haltSyringeMotors(syringe):
+	def haltSyringeMotors(self, syringe):
 
 
 		return status
 
 
 
-	def initialiseSyringe(syringe):
-
-
-
-
-		return status
-
-
-
-	def setSyringeSize(syringe, volume):
+	def initialiseSyringe(self, syringe):
 
 
 
@@ -137,7 +191,7 @@ class Gilson402(object):
 
 
 
-	def setSyringeFlow(syringe, volRate):
+	def setSyringeSize(self, syringe, volume):
 
 
 
@@ -146,7 +200,7 @@ class Gilson402(object):
 
 
 
-	def timelyStart(syringe):
+	def setSyringeFlow(self, syringe, volRate):
 
 
 
@@ -155,7 +209,16 @@ class Gilson402(object):
 
 
 
-	def valveConfigOption(valve):
+	def timelyStart(self, syringe):
+
+
+
+
+		return status
+
+
+
+	def valveConfigOption(self, valve):
 
 
 
@@ -165,7 +228,7 @@ class Gilson402(object):
 
 
 
-	def valveControl(valve, position):
+	def valveControl(self, valve, position):
 
 
 
