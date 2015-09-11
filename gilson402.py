@@ -1,41 +1,47 @@
 
 
 import serial
+import time
 # needs to talk to 402 unit, typically slaved over RS422
 
 
 class Gilson402(object):
 
 	def __init__(self):
+		self.unit='Gilson402 Syringe Pump'
 
 
+	def connect(self, ser_port='/dev/ttyUSB0'):
 
-
-
-	def connect(self, port, baud=19200, bytesize=8, timeout=1):
-
-		self.ser = serial.Serial( port, baud, bytesize, timeout )
-	
+		self.ser = serial.Serial(port=ser_port, baudrate=19200, bytesize=8, parity='E', stopbits=1, timeout=1 )
+		status = self.ser.isOpen()
 
 		return status
 
 
 	def isConnected(self):
 
+		connected = self.ser.isOpen()
 
-		return connected  #bool
-
+		return connected
 
 
 
 	def disconnect(self):
 
 		self.ser.close()
+		status = self.ser.isOpen()
 
 		return status
 
 
+	def deviceAcknowledge(self, device_id):
 
+		if not self.isConnected():
+			return 'not connected';
+		ack_id = self._doImmediateCommand(chr(device_id), 2)
+
+		return ack_id
 
 
 
@@ -44,93 +50,55 @@ class Gilson402(object):
 ###############################
 
 	def reqModuleID(self):
-		#check connected
-		if( ! self.isConnected() ):
-			return 0;
-		#clear read buffer
 
-		#write command
-		self.ser.write('%')
-		#send ack
-		self.ser.write(chr(6))
+		if not self.isConnected():
+			return 'not connected';
 
-		#read returned bytes
+		modInfo = self._doImmediateCommand('%', 8)
 
-		#process returned bytes
-
-		return format
+		return modInfo
 
 
 
 	def masterReset(self):
-		#check connected
-		if( ! self.isConnected() ):
-			return 0;
-		#clear read buffer
-
-		#write command
-		self.ser.write('$')
-		#send ack
-		self.ser.write(chr(6))
-
-		#read returned bytes
 		
-		#process returned bytes
+		if not self.isConnected():
+			return 'not connected';
+
+		status = self._doImmediateCommand('$', 2)
 
 		return status
 
 	def getGlobalStatus(self):
-		#check connected
-		if( ! self.isConnected() ):
-			return 0;
-		#clear read buffer
-
-		#write command
-		self.ser.write('')
-		#send ack
-		self.ser.write(chr(6))
-
-		#read returned bytes
 		
-		#process returned bytes
+		if not self.isConnected():
+			return 'not connected';
+
+		status = self._doImmediateCommand('S', 2)
+
+		return status
 
 		return globalStatus
 
 
 
 	def getSyringeStatus(self):
-		#check connected
-		if( ! self.isConnected() ):
-			return 0;
-		#clear read buffer
 
-		#write command
-		self.ser.write('M')
-		#send ack
-		self.ser.write(chr(6))
+		if not self.isConnected():
+			return 'not connected';
 
-		#read returned bytes
-		
-		#process returned bytes
+		syringeStatus = self._doImmediateCommand('M',11)
 
 		return syringeStatus
 
 
 
 	def getValveStatus(self):
-		#check connected
-		if( ! self.isConnected() ):
-			return 0;
-		#clear read buffer
 
-		#write command
-		self.ser.write('V')
-		#send ack
-		self.ser.write(chr(6))
+		if not self.isConnected():
+			return 'not connected';
 
-		#read returned bytes
-		
-		#process returned bytes
+		valveStatus = self._doImmediateCommand('V',3)
 
 		return valveStatus
 
@@ -143,7 +111,12 @@ class Gilson402(object):
 
 	def aspirateVolume(self, syringe, volume):
 
+		if not self.isConnected():
+			return 'not connected';
 
+		command = 'A' + syringe + volume
+
+		status = self._doBufferedCommand(command, 2)
 
 		return status
 
@@ -151,7 +124,11 @@ class Gilson402(object):
 
 	def startSyringe(self, syringe):
 
+		if not self.isConnected():
+			return 'not connected';
 
+		command = 'B' + syringe
+		status = self._doBufferedCommand(command, 2)
 
 		return status
 
@@ -160,7 +137,11 @@ class Gilson402(object):
 
 	def dispenseVolume(self, syringe, volume):
 
+		if not self.isConnected():
+			return 'not connected';
 
+		command = 'D' + syringe + volume
+		status = self._doBufferedCommand(command, 2)
 
 		return status
 
@@ -170,7 +151,7 @@ class Gilson402(object):
 
 
 
-		return status:
+		return status
 
 
 
@@ -236,12 +217,38 @@ class Gilson402(object):
 
 
 
+	def _doImmediateCommand(self, command_string, response_size):
 
 
+		for c in command_string:
+			self.ser.write(c)
+			time.sleep(0.02)
+
+		for i in range(1, response_size):
+			self.ser.write(chr(6))
+			#time.sleep(0.02)
+
+		ret = self.ser.readall()
+		return ret
 
 
+	def _doBufferedCommand(self, command_string, response_size):
 
+		self.ser.write(chr(10))
+		time.sleep(0.02)
 
+		for c in command_string:
+			self.ser.write(c)
+			time.sleep(0.02)
+
+		self.ser.write(chr(13))
+
+		for i in range(1, response_size):
+			self.ser.write(chr(6))
+			#time.sleep(0.02)
+
+		ret = self.ser.readall()
+		return ret
 
 
 
@@ -384,7 +391,7 @@ class Gilson402(object):
 # B
 # command.
 # Volume range
-# Syringe (μl) 100 250 500
+# Syringe (ul) 100 250 500
 # 1000 5000 10000 25000 39000
 # Vol. min (ml) 0.1 0.1 1 1 1 1 1 0*
 # Vol. max (ml) 100 250 500
@@ -397,7 +404,7 @@ class Gilson402(object):
 # the immediate
 # S
 # command.
-# * These units are in steps, not μl.
+# * These units are in steps, not ul.
 # B Start syringe
 # Syntax:
 # Bn
@@ -472,8 +479,8 @@ class Gilson402(object):
 # 5%, 3 = 50%, 4 = 75%, 5 = 100%.
 
 # The current level is automatically set according to the syringe type, as follows:
-# 100, 250, 500, 1000 μl: level 3 ;
-# 5000, 10000, 25000 μl, 39000 steps: level 5.
+# 100, 250, 500, 1000 ul: level 3 ;
+# 5000, 10000, 25000 ul, 39000 steps: level 5.
 # Use this command to set the syringe motor force to a different value if the need arises.
 #  Send it after defining the syringe using the buffered P command, and before to send the first motion command.
 #  If a motion is already in progress, this command will only take effect at the next motion.
@@ -481,6 +488,7 @@ class Gilson402(object):
 #  N Halt syringe motors Syntax: Hn where n is the syringe identification n = L for left syringe, n = R for right syringe, n = B for both syringe.
 #  If the specified syringe is at rest, the command is ignored.
 #  No error is flagged.
+
 #  O Initialize syringe Syntax: On where n is the syringe identification n = L for left syringe, n = R for right syringe, n = B for both syringe.
 #  This command sends the piston to the topmost position, until the plunger touches the valve body; then the piston moves down by a small amount to provide a clearance between the piston and the syringe top.
 #  The motor force is set automatically according to the syringe selected.
@@ -498,7 +506,7 @@ class Gilson402(object):
 #  The value 39000 is also accepted to indicate that the commands A, D and S will be expressed in steps or steps/s.
 #  S Set syringe flow Syntax: Snvvvvv where n is the syringe identification n = L for left syringe, n = R for right syringe.
 #  vvvvv is the flow in ml/min, or in steps/s if the syringe 39000 is used.
-#  Volume range Syringe (μl) 100 250 500 1000 5000 10000 25000 39000 Flow min (ml/min) 0.
+#  Volume range Syringe (ul) 100 250 500 1000 5000 10000 25000 39000 Flow min (ml/min) 0.
 # 001 0.
 # 001 0.
 # 001 0.
